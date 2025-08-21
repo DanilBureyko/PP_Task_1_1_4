@@ -8,30 +8,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private static final Connection conn = Util.getConnection();
+    private static final Connection conn = Util.getConnectionJDBC();
 
     public UserDaoJDBCImpl() {
 
     }
-
+    @Override
     public void createUsersTable() {
-        try( Statement stmt = conn.createStatement() ) {
+        try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `pp_task1`.`users` " + "(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), lastname VARCHAR(255), age INT)");
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
+    @Override
     public void dropUsersTable() {
-        try(Statement stmt = conn.createStatement()){
+        try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DROP TABLE IF EXISTS `pp_task1`.`users`");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
+    @Override
     public void saveUser(String name, String lastName, byte age) {
-        try(PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO `pp_task1`.`users`(`name`,`lastname`,`age`) VALUES (?,?,?)")){
+        try (PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO `pp_task1`.`users`(`name`,`lastname`,`age`) VALUES (?,?,?)")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setInt(3, age);
@@ -40,21 +40,21 @@ public class UserDaoJDBCImpl implements UserDao {
             throw new RuntimeException(e);
         }
     }
-
+    @Override
     public void removeUserById(long id) {
-        try(PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `pp_task1`.`users` WHERE (`id` = ?)")){
-            preparedStatement.setLong(1,id);
+        try (PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM `pp_task1`.`users` WHERE (`id` = ?)")) {
+            preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
+    @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        try(ResultSet resultSet = conn.createStatement().executeQuery("SELECT * FROM `pp_task1`.`users`")){
-            while(resultSet.next()){
-                User user = new User(resultSet.getString("name"),resultSet.getString("lastname"),resultSet.getByte("age"));
+        try (ResultSet resultSet = conn.createStatement().executeQuery("SELECT * FROM `pp_task1`.`users`")) {
+            while (resultSet.next()) {
+                User user = new User(resultSet.getString("name"), resultSet.getString("lastname"), resultSet.getByte("age"));
                 user.setId(resultSet.getLong("id"));
                 users.add(user);
             }
@@ -63,9 +63,9 @@ public class UserDaoJDBCImpl implements UserDao {
         }
         return users;
     }
-
+    @Override
     public void cleanUsersTable() {
-        try(Statement stmt = conn.createStatement()){
+        try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("TRUNCATE TABLE `pp_task1`.`users`");
         } catch (SQLException e) {
             throw new RuntimeException(e);
